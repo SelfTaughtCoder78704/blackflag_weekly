@@ -33,10 +33,11 @@
   },
   "dependencies": {
     "@openai/agents": "^0.0.10",
-    "simple-git": "^3.20.0",
-    "inquirer": "^9.2.0",
     "chalk": "^5.3.0",
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.0",
+    "simple-git": "^3.20.0",
+    "zod": "^3.25.69"
   },
   "engines": {
     "node": ">=22.17.0"

@@ -109,6 +109,7 @@ program
   .option('-o, --output <path>', 'Output directory for generated slides', './slides')
   .option('--theme <theme>', 'Slidev theme to use', 'default')
   .option('--skip-ai', 'Skip AI processing and use raw commit messages')
+  .option('--legacy-agent', 'Use single-agent system instead of multi-agent architecture')
   .option('--auto-start', 'Automatically start Slidev after generating slides (default)')
   .option('--no-auto-start', 'Don\'t start Slidev automatically')
 
@@ -166,10 +167,10 @@ async function isGitRepository() {
 program.addHelpText('after', `
 
 Examples:
-  # Use default prompt
+  # Use default multi-agent analysis (recommended)
   $ blackflag_weekly
 
-  # Use built-in style presets  
+  # Use built-in style presets with multi-agent system
   $ blackflag_weekly --style executive
   $ blackflag_weekly --style technical --deep-dive
   $ blackflag_weekly --style retrospective --team-size 5
@@ -183,6 +184,9 @@ Examples:
   # Mix and match options
   $ blackflag_weekly --style technical --theme seriph --include-metrics
   $ blackflag_weekly --style executive --focus business --audience executive
+
+  # Use legacy single-agent system (if multi-agent has issues)
+  $ blackflag_weekly --legacy-agent
 
 Available Styles:
 ${availableStyles.map(style => `  ${style.padEnd(12)} ${styleDescriptions[style]}`).join('\n')}

@@ -7,11 +7,12 @@ Transform your technical commits into compelling presentations that tell the sto
 ## Features
 
 - 📚 **Interactive Git History Selection** - Browse recent commits and pick your starting point
+- 🧠 **Intelligent Code Analysis** - Advanced AI agent analyzes actual code changes, not just commit messages
 - 🤖 **AI-Powered Storytelling** - Transform technical commits into engaging narratives using OpenAI Agents
 - 🎨 **Professional Slides** - Generated using Slidev with customizable themes
 - 🚀 **One-Command Workflow** - Automatically generates slides AND starts Slidev presentation
-- 📊 **Smart Analysis** - Analyzes file changes, commit types, and project evolution
-- 🛡️ **Bulletproof Generation** - Structured output prevents broken slides
+- 📊 **Smart Pattern Detection** - Identifies refactoring, architectural changes, and business impact from real code changes
+- 🛡️ **Bulletproof Generation** - Structured output prevents broken slides with automatic fallback
 - 🎯 **Multiple Presentation Styles** - Executive, technical, retrospective, and custom prompts
 - ⚙️ **Flexible Customization** - Custom prompts, configuration files, and inline modifiers
 - 🎭 **Audience Targeting** - Optimize presentations for executives, developers, or teams
@@ -60,6 +61,9 @@ npx blackflag_weekly --no-auto-start
 # Use raw commit messages (no AI processing)
 npx blackflag_weekly --skip-ai
 
+# Use legacy single-agent system (fallback option)
+npx blackflag_weekly --legacy-agent
+
 # Specify output directory  
 npx blackflag_weekly --output ./my-slides
 
@@ -92,6 +96,55 @@ export OPENAI_API_KEY=sk-your-api-key-here
 
 # Or create a .env file
 echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
+```
+
+## 🧠 Intelligent Code Analysis
+
+BlackFlag Weekly uses an advanced AI agent that goes far beyond simple commit message keywords to understand what really changed in your codebase.
+
+### **The Problem with Traditional Tools**
+Most tools rely on keyword matching in commit messages:
+- Looking for "refactor", "architect", "restructure" in messages
+- Missing the real story when developers write simple messages like "fix auth bug"
+- Cannot detect actual architectural changes from code patterns
+
+### **Our Intelligent Solution**
+Our smart AI agent analyzes the actual code changes:
+
+```bash
+# Traditional approach (keyword-based)
+Commit: "fix auth bug" → Categorized as "bugfix" 
+Reality: Actually restructured entire authentication system
+
+# BlackFlag approach (intelligent analysis)
+Commit: "fix auth bug" → Analyzes actual code changes
+Result: "Major architectural refactoring of authentication system with security improvements"
+```
+
+### **What the AI Agent Detects**
+- 🏗️ **Architectural Changes**: Analyzes file structure, module dependencies, and code organization
+- 🚀 **Performance Improvements**: Identifies algorithm changes, database optimizations, and caching
+- 🔒 **Security Enhancements**: Detects authentication, authorization, and validation improvements  
+- 🧪 **Quality Improvements**: Recognizes test additions, code cleanup, and technical debt reduction
+- 💼 **Business Impact**: Maps code changes to user-facing features and system capabilities
+- 🔄 **Refactoring Patterns**: Identifies code restructuring even without explicit commit messages
+
+### **Analysis Examples**
+
+**File-Based Analysis:**
+```
+Files changed: 8 files, +634/-39 lines
+- New modules in prompts/ directory → "Modular architecture implementation"
+- CLI updates with new flags → "Enhanced user interface capabilities"  
+- README documentation → "Comprehensive feature documentation"
+Result: "Major feature release with modular prompt system"
+```
+
+**Pattern Detection:**
+```
+Multiple files with balanced additions/deletions → "Refactoring detected"
+New authentication-related files → "Security system implementation"
+Database schema changes → "Data model evolution"
 ```
 
 ## 🎨 Presentation Styles & Customization
@@ -218,10 +271,12 @@ npx blackflag_weekly
 🤖 Processing commits with AI Agent...
 
 🔍 Processing 3 commits
-🔍 Work categories: feature, bugfix, documentation
-🔍 AI generated 2847 characters
-🔍 Parsed JSON: 5 slides
-✅ Final slides: 2156 characters
+🤖 Using intelligent analysis for advanced code understanding...
+🔄 Starting smart slide generation...
+🔍 Prepared 3 commits for intelligent analysis
+🔍 Analyzing actual code changes beyond commit messages...
+✅ Smart slide generation complete
+✅ Intelligent slides: 2958 characters
 
 📝 Slides written to: ./slides/slides.md
 
@@ -241,76 +296,111 @@ The tool creates compelling narrative slides that tell your development story:
 
 ### Example Generated Slides
 
+**From simple commit messages to sophisticated analysis:**
+
 ```markdown
 ---
 theme: default
-title: "Authentication & Mobile: A Development Sprint"
+title: "Security Architecture & User Experience: A Technical Evolution"
 ---
 
-# 🚀 The Story of Our Latest Sprint
+# 🏗️ Architectural Evolution in Action
 ## March 1-8, 2024
 
-Our journey from authentication challenges to mobile-first improvements
+How three "simple" commits revealed a comprehensive system transformation
 
 ---
 
-# 🎯 Where We Started
+# 🔍 What the Intelligent Analysis Discovered
 
-The challenge was clear: users needed secure access while our mobile experience was falling short...
+**Commit messages said:**
+- "feat: add user authentication"
+- "fix: resolve mobile layout issues" 
+- "docs: update API documentation"
+
+**Reality revealed by code analysis:**
+- Complete security architecture implementation
+- Mobile-first responsive design system
+- API contract standardization with breaking changes
 
 ---
 
-# 💡 The Authentication Breakthrough
+# 🚀 The Security Foundation
 
-### We tackled user security head-on
-- Comprehensive authentication system implemented
-- Password reset and session management added
-- This unlocked secure user workflows across the platform
+### Beyond basic authentication - we built enterprise-ready security
+- **JWT token management** with refresh token rotation
+- **Role-based access control** affecting 12 components
+- **Session security** with device fingerprinting
+- **Password policies** meeting OWASP standards
+
+*Files: 8 new security modules, 1,247 lines added*
 
 ---
 
-# 🔧 Mobile Experience Revolution  
+# 📱 Mobile Experience Revolution
 
-### Building on our security foundation
-- Critical mobile layout issues resolved
-- User experience now consistent across all devices
-- Mobile-first approach guides future development
+### Responsive design patterns emerged from "bug fixes"
+- **CSS Grid adoption** replacing legacy flexbox patterns
+- **Progressive Web App** capabilities added
+- **Touch gesture support** for mobile interactions
+- **Performance optimization** reducing bundle size by 23%
+
+*Files: 15 components refactored, 892 lines changed*
+
+---
+
+# 📋 Documentation as Code Architecture
+
+### API documentation revealed system-wide changes
+- **OpenAPI 3.0 specification** with automated validation
+- **Breaking changes** to 7 API endpoints documented
+- **Migration guides** for frontend integration
+- **Type definitions** exported for external consumers
 
 ---
 layout: center
 ---
 
-# 🎉 The Outcome
+# 🎯 The Strategic Impact
 
-**We now have**: Secure, mobile-optimized platform ready for scale
-**Next chapter**: Enhanced user management and continued mobile excellence
+**Technical Achievement**: Modular security system with mobile-first architecture
+**Business Value**: Enterprise-ready platform with improved user retention
+**Next Phase**: Multi-tenant capabilities and advanced analytics
 
-*3 commits • 15 files • 847 lines of focused progress*
+*3 commits • 23 files • 2,139 lines • Architectural complexity: High*
 ```
 
-## AI vs Raw Modes
+## Analysis Modes
 
-### AI Mode (Default)
-- Creates engaging narrative presentations with multiple style options
-- Connects commits into a cohesive story with audience-specific language
-- **Executive style**: Business impact, ROI, strategic outcomes
-- **Technical style**: Implementation details, code examples, architecture
-- **Retrospective style**: Team dynamics, process insights, lessons learned
-- Analyzes technical changes and explains their impact
+### 🧠 Intelligent AI Mode (Default)
+- **Smart Code Analysis**: Analyzes actual file changes and code patterns, not just commit messages
+- **Pattern Recognition**: Detects refactoring, architectural changes, and business impact automatically
+- **Engaging Narratives**: Creates compelling stories that show development progression
+- **Multiple Styles**: Executive, technical, retrospective with audience-specific language
+- **Superior Quality**: Produces professional presentations with deeper insights
 
-### Raw Mode (`--skip-ai`)
-- Fast generation without API calls
-- Direct commit-to-slide conversion
-- Good for quick internal reviews
-- No AI processing required
+### 🏛️ Legacy AI Mode (`--legacy-agent`)
+- **Keyword-Based Analysis**: Traditional approach using commit message keywords
+- **Fallback Option**: Available if intelligent analysis has issues
+- **Proven Stability**: Uses the original single-agent prompt system
+- **Same Output Quality**: Professional slides but with simpler analysis
+
+### ⚡ Raw Mode (`--skip-ai`)
+- **No AI Processing**: Fast generation without API calls
+- **Direct Conversion**: Simple commit-to-slide transformation
+- **Quick Reviews**: Good for rapid internal updates
+- **No API Key Required**: Works without OpenAI integration
+
+**Recommendation**: Use the default intelligent mode for best results. The legacy mode provides a reliable fallback, and raw mode offers speed when AI analysis isn't needed.
 
 ## Command Reference
 
 ### Core Options
 | Command | Description |
 |---------|-------------|
-| `npx blackflag_weekly` | Generate AI slides and start Slidev |
+| `npx blackflag_weekly` | Generate intelligent AI slides and start Slidev |
 | `npx blackflag_weekly --skip-ai` | Generate raw slides (no AI) |
+| `npx blackflag_weekly --legacy-agent` | Use legacy keyword-based AI analysis |
 | `npx blackflag_weekly --no-auto-start` | Generate slides only (don't start Slidev) |
 | `npx blackflag_weekly --output ./slides` | Specify output directory |
 | `npx blackflag_weekly --theme seriph` | Use specific Slidev theme |

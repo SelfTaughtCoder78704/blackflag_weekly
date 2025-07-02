@@ -7,6 +7,7 @@ import chalk from 'chalk';
 import { spawn } from 'child_process';
 import { slideGenerationPrompt } from '../prompts/slideGeneration.js';
 import { getPromptByStyle } from '../prompts/index.js';
+import { generateSlidesWithMultiAgent } from './multiAgent.js';
 
 class BlackflagWeekly {
   constructor(options = {}) {
@@ -425,6 +426,42 @@ ${isFeatureDevelopment && !hadChallenges ?
     commits.forEach((commit, index) => {
       console.log(chalk.gray(`   ${index + 1}. ${commit.message} (${commit.stats?.files || 0} files, +${commit.stats?.insertions || 0}/-${commit.stats?.deletions || 0})`));
     });
+
+    // Check if multi-agent system is enabled (default to true for better analysis)
+    // Use legacy single-agent if specifically requested
+    const useMultiAgent = !this.options.legacyAgent;
+
+    if (useMultiAgent) {
+      console.log(chalk.blue('🤖 Using multi-agent architecture for advanced analysis...'));
+
+      try {
+        // Prepare options for multi-agent system
+        const multiAgentOptions = {
+          style: this.options.style,
+          theme: this.options.theme,
+          audience: this.options.audience,
+          focus: this.options.focus,
+          includeMetrics: this.options.includeMetrics,
+          deepDive: this.options.deepDive,
+          repositoryName: this.options.repositoryName,
+          timespan: this.options.timespan,
+          promptConfig: this.options.promptConfig
+        };
+
+        const slideContent = await generateSlidesWithMultiAgent(commits, multiAgentOptions);
+
+        console.log(chalk.gray(`✅ Multi-agent slides: ${slideContent.length} characters`));
+        return slideContent;
+
+      } catch (error) {
+        console.log(chalk.yellow('⚠️ Multi-agent processing failed, falling back to single-agent system'));
+        console.log(chalk.red(`Multi-agent error: ${error.message}`));
+        // Fall through to single-agent system
+      }
+    }
+
+    // Single-agent system (legacy/fallback)
+    console.log(chalk.blue('🤖 Using single-agent system...'));
 
     // Create detailed commit analysis
     const detailedCommitSummary = commits.map(c => {
