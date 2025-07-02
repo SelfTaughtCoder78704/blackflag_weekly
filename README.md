@@ -12,6 +12,9 @@ Transform your technical commits into compelling presentations that tell the sto
 - 🚀 **One-Command Workflow** - Automatically generates slides AND starts Slidev presentation
 - 📊 **Smart Analysis** - Analyzes file changes, commit types, and project evolution
 - 🛡️ **Bulletproof Generation** - Structured output prevents broken slides
+- 🎯 **Multiple Presentation Styles** - Executive, technical, retrospective, and custom prompts
+- ⚙️ **Flexible Customization** - Custom prompts, configuration files, and inline modifiers
+- 🎭 **Audience Targeting** - Optimize presentations for executives, developers, or teams
 
 ## Installation
 
@@ -55,13 +58,28 @@ That's it! The tool will:
 npx blackflag_weekly --no-auto-start
 
 # Use raw commit messages (no AI processing)
-npx blackflag_weekly --raw
+npx blackflag_weekly --skip-ai
 
 # Specify output directory  
 npx blackflag_weekly --output ./my-slides
 
 # Use a specific Slidev theme
 npx blackflag_weekly --theme seriph
+
+# Use presentation style presets
+npx blackflag_weekly --style executive
+npx blackflag_weekly --style technical --deep-dive
+npx blackflag_weekly --style retrospective --team-size 5
+
+# Use custom prompt file
+npx blackflag_weekly --prompt ./my-custom-prompt.js
+
+# Use configuration file
+npx blackflag_weekly --config ./blackflag.config.js
+
+# Mix presentation options
+npx blackflag_weekly --style technical --focus technical --include-metrics
+npx blackflag_weekly --style executive --audience executive --theme seriph
 ```
 
 ### Environment Setup
@@ -75,6 +93,106 @@ export OPENAI_API_KEY=sk-your-api-key-here
 # Or create a .env file
 echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
 ```
+
+## 🎨 Presentation Styles & Customization
+
+BlackFlag Weekly offers multiple presentation styles optimized for different audiences and use cases.
+
+### Built-in Presentation Styles
+
+| Style | Description | Best For |
+|-------|-------------|-----------|
+| **default** | Balanced technical and narrative focus | General development updates |
+| **executive** | Business impact, ROI, strategic outcomes | Stakeholder presentations |
+| **technical** | Implementation details, architecture decisions | Developer reviews, technical deep dives |
+| **retrospective** | Team dynamics, process improvement | Sprint retrospectives, team meetings |
+
+### Style Examples
+
+```bash
+# Executive presentation for stakeholders
+npx blackflag_weekly --style executive
+# → Business language, strategic impact, timeline focus
+
+# Technical deep dive for developers  
+npx blackflag_weekly --style technical --deep-dive
+# → Code examples, architecture patterns, implementation details
+
+# Team retrospective for process improvement
+npx blackflag_weekly --style retrospective --team-size 5 --highlight-challenges
+# → Collaboration insights, lessons learned, action items
+```
+
+### Custom Prompt Files
+
+Create your own presentation style by writing a custom prompt file:
+
+```javascript
+// my-custom-prompt.js
+export const slideGenerationPrompt = (theme, commits, workByCategory, detailedSummary, config) => {
+  return `Create a presentation focusing on security and compliance...
+  
+  COMMIT ANALYSIS: ${commits.length} commits analyzed
+  WORK CATEGORIES: ${Object.keys(workByCategory).join(', ')}
+  
+  Focus on: security improvements, compliance requirements, risk mitigation...`;
+};
+```
+
+```bash
+# Use your custom prompt
+npx blackflag_weekly --prompt ./my-custom-prompt.js
+```
+
+### Configuration Files
+
+Set up reusable configurations for consistent presentation styles:
+
+```javascript
+// blackflag.config.js
+export default {
+  style: 'executive',
+  theme: 'seriph',
+  output: './weekly-reports',
+  autoStart: false,
+  promptConfig: {
+    focus: 'business',
+    audience: 'executive',
+    includeMetrics: true
+  }
+};
+```
+
+```bash
+# Use configuration file
+npx blackflag_weekly --config ./blackflag.config.js
+```
+
+### Inline Presentation Modifiers
+
+Fine-tune any style with inline options:
+
+```bash
+# Technical focus with metrics
+npx blackflag_weekly --style technical --focus technical --include-metrics --deep-dive
+
+# Executive presentation with business focus
+npx blackflag_weekly --style executive --focus business --audience executive
+
+# Retrospective with team insights
+npx blackflag_weekly --style retrospective --team-size 8 --highlight-challenges
+
+# Custom audience targeting
+npx blackflag_weekly --audience developers --focus process
+```
+
+**Available Modifiers:**
+- `--focus business|technical|process` - Primary presentation focus
+- `--audience executive|developers|team|mixed` - Target audience
+- `--deep-dive` - Include detailed technical analysis
+- `--include-metrics` - Add detailed analytics and metrics
+- `--highlight-challenges` - Emphasize problem-solving and challenges
+- `--team-size <number>` - Optimize for specific team size
 
 ## Example Workflow
 
@@ -173,12 +291,14 @@ layout: center
 ## AI vs Raw Modes
 
 ### AI Mode (Default)
-- Creates engaging narrative presentations
-- Connects commits into a cohesive story
-- Professional language suitable for stakeholders
+- Creates engaging narrative presentations with multiple style options
+- Connects commits into a cohesive story with audience-specific language
+- **Executive style**: Business impact, ROI, strategic outcomes
+- **Technical style**: Implementation details, code examples, architecture
+- **Retrospective style**: Team dynamics, process insights, lessons learned
 - Analyzes technical changes and explains their impact
 
-### Raw Mode (`--raw`)
+### Raw Mode (`--skip-ai`)
 - Fast generation without API calls
 - Direct commit-to-slide conversion
 - Good for quick internal reviews
@@ -186,13 +306,34 @@ layout: center
 
 ## Command Reference
 
+### Core Options
 | Command | Description |
 |---------|-------------|
 | `npx blackflag_weekly` | Generate AI slides and start Slidev |
-| `npx blackflag_weekly --raw` | Generate raw slides (no AI) |
+| `npx blackflag_weekly --skip-ai` | Generate raw slides (no AI) |
 | `npx blackflag_weekly --no-auto-start` | Generate slides only (don't start Slidev) |
 | `npx blackflag_weekly --output ./slides` | Specify output directory |
 | `npx blackflag_weekly --theme seriph` | Use specific Slidev theme |
+
+### Presentation Styles
+| Command | Description |
+|---------|-------------|
+| `--style executive` | Business-focused presentation for stakeholders |
+| `--style technical` | Developer-focused with implementation details |
+| `--style retrospective` | Team-focused for process improvement |
+| `--style default` | Balanced technical and narrative focus |
+
+### Customization Options
+| Command | Description |
+|---------|-------------|
+| `--prompt ./custom.js` | Use custom prompt file |
+| `--config ./config.js` | Load configuration file |
+| `--focus business\|technical\|process` | Set presentation focus area |
+| `--audience executive\|developers\|team` | Target specific audience |
+| `--deep-dive` | Include detailed technical analysis |
+| `--include-metrics` | Add analytics and detailed metrics |
+| `--highlight-challenges` | Emphasize problem-solving |
+| `--team-size <number>` | Optimize for team size |
 
 ## Requirements
 
