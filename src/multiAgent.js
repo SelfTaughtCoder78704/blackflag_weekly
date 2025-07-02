@@ -131,11 +131,56 @@ ANALYSIS PROCESS:
 3. Determine business impact and technical significance
 4. Create a compelling narrative that shows development progression
 
-SLIDE GENERATION:
-- Create 4-6 slides that tell the development story
+SLIDE GENERATION RULES:
+- Create 5-8 slides that tell the development story (more commits = more slides)
 - Include title slide, development journey, key achievements, and conclusion
 - Use appropriate Slidev layouts and formatting
 - Make it engaging for the target audience
+
+APPROVED SLIDEV FEATURES - USE THESE LIBERALLY:
+
+ICONS (enhance visual appeal):
+- <mdi:git-branch /> <mdi:git-commit /> <mdi:git-merge />
+- <carbon:development /> <carbon:code /> <carbon:chart-line />
+- <heroicons:code-bracket /> <heroicons:bug-ant /> <heroicons:shield-check />
+- <lucide:zap /> <lucide:users /> <lucide:database />
+- 🚀 🔧 📚 💡 🏗️ 🔒 📊 ⚡ 🎯
+
+LINKS (make it interactive):
+- [Pull Request #123](https://github.com/org/repo/pull/123)
+- [Issue #456](https://github.com/org/repo/issues/456)
+- [Documentation](https://docs.example.com)
+- [Live Demo](https://app.example.com)
+
+LAYOUTS (use variety):
+- layout: default (standard slide)
+- layout: center (centered content)
+- layout: two-cols (side-by-side content)
+- layout: cover (title slide style)
+
+EMPHASIS & FORMATTING:
+- **Bold text** for key points
+- *Italic text* for emphasis
+- \`code snippets\` for technical terms
+- > Blockquotes for important callouts
+- - Bullet points for lists
+- 1. Numbered lists for sequences
+
+VISUAL ELEMENTS:
+- <div class="text-center"> for centered content
+- <small> for secondary information
+- <br/> for line breaks
+- Images: ![alt text](https://example.com/image.png)
+
+ANIMATIONS (subtle):
+- <div v-click> for click animations
+- <span v-after> for sequential reveals
+
+CRITICAL RESTRICTIONS:
+- NEVER use YAML anchors/aliases: NO *AnchorName or &AnchorName
+- NEVER use YAML merge operators: NO <<:
+- Always ensure content is meaningful (no empty slides)
+- Keep YAML frontmatter simple and clean
 
 Return a complete slide deck in JSON format with title, theme, and slides array.`,
   outputType: SlideDeckSchema
@@ -244,9 +289,25 @@ Generate a complete slide deck in JSON format.`;
 
 // Helper function to convert structured slide deck to Slidev markdown
 function convertSlideDeckToSlidev(slideDeck) {
+  // Sanitize function to remove only problematic YAML anchors while preserving Slidev features
+  function sanitizeContent(content) {
+    if (!content) return '';
+
+    return content
+      // Only remove YAML anchors/aliases that would break parsing
+      .replace(/\*[a-zA-Z_][a-zA-Z0-9_]*(?=\s|$|[^\w-])/g, '') // Remove YAML aliases like *Commit but not *italic*
+      .replace(/&[a-zA-Z_][a-zA-Z0-9_]*(?=\s|$|[^\w-])/g, '') // Remove YAML anchors like &anchor but preserve HTML entities
+      .replace(/<<:/g, '') // Remove YAML merge keys
+      .replace(/[\u0000-\u001f\u007f-\u009f]/g, '') // Remove control characters
+      .trim();
+  }
+
+  // Sanitize title to ensure it's safe for YAML
+  const safeTitle = sanitizeContent(slideDeck.title || 'Weekly Development Update');
+
   let markdown = `---
 theme: ${slideDeck.theme || 'default'}
-title: "${slideDeck.title}"
+title: "${safeTitle}"
 ---
 
 `;
@@ -260,25 +321,36 @@ title: "${slideDeck.title}"
       markdown += `layout: ${slide.layout}\n`;
     }
 
-    markdown += `\n# ${slide.title}\n`;
+    const safeSlideTitle = sanitizeContent(slide.title) || `Slide ${index + 1}`;
+    markdown += `\n# ${safeSlideTitle}\n`;
 
     if (slide.subtitle && slide.subtitle !== null) {
-      markdown += `## ${slide.subtitle}\n\n`;
+      const safeSubtitle = sanitizeContent(slide.subtitle);
+      if (safeSubtitle) {
+        markdown += `## ${safeSubtitle}\n\n`;
+      }
     }
 
     if (slide.layout === 'two-cols') {
       markdown += '\n::left::\n\n';
-      markdown += slide.content;
+      const safeContent = sanitizeContent(slide.content);
+      markdown += safeContent || 'Content placeholder';
+
       if (slide.right_content && slide.right_content !== null) {
         markdown += '\n\n::right::\n\n';
-        markdown += slide.right_content;
+        const safeRightContent = sanitizeContent(slide.right_content);
+        markdown += safeRightContent || 'Content placeholder';
       }
     } else {
-      markdown += `\n${slide.content}`;
+      const safeContent = sanitizeContent(slide.content);
+      markdown += `\n${safeContent || 'Content placeholder'}`;
     }
 
     if (slide.notes && slide.notes !== null) {
-      markdown += `\n\n<!--\n${slide.notes}\n-->`;
+      const safeNotes = sanitizeContent(slide.notes);
+      if (safeNotes) {
+        markdown += `\n\n<!--\n${safeNotes}\n-->`;
+      }
     }
 
     markdown += '\n';
