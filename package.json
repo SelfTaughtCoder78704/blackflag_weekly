@@ -1,6 +1,6 @@
 {
   "name": "blackflag_weekly",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate weekly progress slides from git history using OpenAI Agents and Slidev",
   "main": "src/index.js",
   "type": "module",
