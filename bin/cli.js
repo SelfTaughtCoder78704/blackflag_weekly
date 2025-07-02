@@ -3,11 +3,19 @@
 import { program } from 'commander';
 import { runBlackflagWeekly } from '../src/index.js';
 import chalk from 'chalk';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+// Read version from package.json
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
 
 program
   .name('blackflag_weekly')
   .description('Generate weekly progress slides from git history using OpenAI Agents and Slidev')
-  .version('1.0.0')
+  .version(packageJson.version)
   .option('-o, --output <path>', 'Output directory for generated slides', './slides')
   .option('--theme <theme>', 'Slidev theme to use', 'default')
   .option('--skip-ai', 'Skip AI processing and use raw commit messages')
