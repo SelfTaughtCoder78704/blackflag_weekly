@@ -1,0 +1,44 @@
+{
+  "name": "blackflag_weekly",
+  "version": "1.0.0",
+  "description": "Generate weekly progress slides from git history using OpenAI Agents and Slidev",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "blackflag_weekly": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "git",
+    "slides",
+    "slidev",
+    "presentation",
+    "ai",
+    "weekly",
+    "progress",
+    "reports"
+  ],
+  "author": "SelfTaughtCoder78704",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SelfTaughtCoder78704/blackflag_weekly.git"
+  },
+  "homepage": "https://github.com/SelfTaughtCoder78704/blackflag_weekly#readme",
+  "bugs": {
+    "url": "https://github.com/SelfTaughtCoder78704/blackflag_weekly/issues"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.0.10",
+    "simple-git": "^3.20.0",
+    "inquirer": "^9.2.0",
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
