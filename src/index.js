@@ -4,10 +4,7 @@ import { Agent, run, setDefaultOpenAIKey } from '@openai/agents';
 import fs from 'fs/promises';
 import path from 'path';
 import chalk from 'chalk';
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { spawn } from 'child_process';
 
 class BlackflagWeekly {
   constructor(options = {}) {
