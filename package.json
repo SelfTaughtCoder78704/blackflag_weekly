@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "bin": {
-    "blackflag_weekly": "./bin/cli.js"
+    "blackflag_weekly": "bin/cli.js"
   },
   "scripts": {
     "start": "node bin/cli.js",
@@ -25,7 +25,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SelfTaughtCoder78704/blackflag_weekly.git"
+    "url": "git+https://github.com/SelfTaughtCoder78704/blackflag_weekly.git"
   },
   "homepage": "https://github.com/SelfTaughtCoder78704/blackflag_weekly#readme",
   "bugs": {
@@ -41,4 +41,4 @@
   "engines": {
     "node": ">=20.10.0"
   }
-} 
+}
