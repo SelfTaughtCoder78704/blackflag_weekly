@@ -15,7 +15,12 @@ Transform your technical commits into compelling presentations that tell the sto
 
 ## Installation
 
+**Prerequisites:** Node.js 22.17.0 or higher required
+
 ```bash
+# Check your Node version
+node --version
+
 # Use directly with npx (recommended)
 npx blackflag_weekly
 
@@ -191,7 +196,7 @@ layout: center
 
 ## Requirements
 
-- **Node.js** 20.10.0 or higher
+- **Node.js** 22.17.0 or higher (required for latest Slidev and ES module compatibility)
 - **Git repository** with commit history  
 - **OpenAI API Key** (for AI features)
 
@@ -222,7 +227,8 @@ await bf.run();
 - Tool automatically falls back to raw slides
 
 **"Node version incompatible"**
-- Update to Node.js 20.10.0 or higher
+- Update to Node.js 22.17.0 or higher
+- Use `nvm install 22` if you have nvm
 - Tool detects version and uses compatible Slidev
 
 ## Contributing
