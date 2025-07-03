@@ -445,7 +445,8 @@ ${isFeatureDevelopment && !hadChallenges ?
           deepDive: this.options.deepDive,
           repositoryName: this.options.repositoryName,
           timespan: this.options.timespan,
-          promptConfig: this.options.promptConfig
+          promptConfig: this.options.promptConfig,
+          customPromptFunction: this.options.customPromptFunction
         };
 
         const slideContent = await generateSlidesWithMultiAgent(commits, multiAgentOptions);

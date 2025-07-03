@@ -8,14 +8,16 @@ Transform your technical commits into compelling presentations that tell the sto
 
 - 📚 **Interactive Git History Selection** - Browse recent commits and pick your starting point
 - 🧠 **Intelligent Code Analysis** - Advanced AI agent analyzes actual code changes, not just commit messages
+- 🎬 **Per-Slide Pipeline Architecture** - Revolutionary slide generation with narrative continuity and 3-retry validation
 - 🤖 **AI-Powered Storytelling** - Transform technical commits into engaging narratives using OpenAI Agents
 - 🎨 **Professional Slides** - Generated using Slidev with customizable themes
 - 🚀 **One-Command Workflow** - Automatically generates slides AND starts Slidev presentation
 - 📊 **Smart Pattern Detection** - Identifies refactoring, architectural changes, and business impact from real code changes
-- 🛡️ **Bulletproof Generation** - Structured output prevents broken slides with automatic fallback
+- 🛡️ **Zero-Error Generation** - Per-slide validation with automatic retry logic prevents YAML parsing errors
 - 🎯 **Multiple Presentation Styles** - Executive, technical, retrospective, and custom prompts
 - ⚙️ **Flexible Customization** - Custom prompts, configuration files, and inline modifiers
 - 🎭 **Audience Targeting** - Optimize presentations for executives, developers, or teams
+- 📖 **Narrative Continuity** - Each slide knows the story so far and maintains perfect flow
 
 ## Installation
 
@@ -97,6 +99,60 @@ export OPENAI_API_KEY=sk-your-api-key-here
 # Or create a .env file
 echo "OPENAI_API_KEY=sk-your-api-key-here" > .env
 ```
+
+## 🎬 Revolutionary Per-Slide Pipeline Architecture
+
+BlackFlag Weekly features a groundbreaking **per-slide pipeline** that generates each slide individually with complete narrative continuity, ensuring perfect presentation flow and zero parsing errors.
+
+### **The Traditional Problem**
+Most AI slide generators create entire presentations in one pass:
+- ❌ Monolithic generation leads to inconsistent quality
+- ❌ One bad slide breaks the entire presentation  
+- ❌ No narrative continuity between slides
+- ❌ YAML parsing errors destroy presentations
+- ❌ Generic content without story progression
+
+### **Our Revolutionary Solution**
+**Per-slide pipeline with intelligent validation:**
+
+```
+📝 Generate → 🔧 Format → ✅ Validate → 🎯 Perfect Slide
+     ↓              ↓           ↓
+Narrative       Built-in     3-Retry    
+Context      Validation    System
+```
+
+### **How the Pipeline Works**
+
+**1. Narrative Planning** - Divides commits into story chapters with logical flow
+**2. Contextual Generation** - Each slide knows:
+   - Its role in the overall story (introduction, development, climax, conclusion)
+   - What previous slides covered (maintains continuity)
+   - Which commits to focus on (targeted content)
+   - The presentation theme and audience
+
+**3. Smart Validation** - Three-layer safety system:
+   - **Formatter Agent**: Scans for YAML-breaking patterns and fixes them
+   - **Validator Agent**: Verifies Slidev compatibility and content quality  
+   - **Retry Logic**: Up to 3 attempts per slide with specific feedback
+
+**4. Story Continuity** - Each slide references previous context:
+```javascript
+narrativeContext: {
+  slideIndex: 2,
+  totalSlides: 6, 
+  previousSlides: ["Foundation laid...", "Early development..."],
+  slideRole: "development_progress",
+  storyArc: "Building towards the technical climax"
+}
+```
+
+### **Pipeline Benefits**
+- 🎯 **Perfect Quality**: Every slide gets focused attention and validation
+- 🔄 **Zero Errors**: 3-retry system with built-in YAML safety prevents parsing failures
+- 📖 **Story Flow**: Narrative continuity creates engaging, professional presentations
+- ⚡ **Reliability**: Individual slide failures don't break the entire presentation
+- 🎨 **Rich Content**: Each slide optimized for its specific role in the story
 
 ## 🧠 Intelligent Code Analysis
 
@@ -271,12 +327,32 @@ npx blackflag_weekly
 🤖 Processing commits with AI Agent...
 
 🔍 Processing 3 commits
-🤖 Using intelligent analysis for advanced code understanding...
-🔄 Starting smart slide generation...
-🔍 Prepared 3 commits for intelligent analysis
-🔍 Analyzing actual code changes beyond commit messages...
-✅ Smart slide generation complete
-✅ Intelligent slides: 2958 characters
+🤖 Using multi-agent architecture for advanced analysis...
+🎬 Starting per-slide pipeline with narrative continuity...
+📋 Planning 5 slides with narrative continuity...
+📝 Generating slide 1...
+🔧 Formatting slide 1...
+✅ Validating slide 1...
+✨ Slide 1 completed successfully
+📝 Generating slide 2...
+🔧 Formatting slide 2...
+✅ Validating slide 2...
+✨ Slide 2 completed successfully
+📝 Generating slide 3...
+🔧 Formatting slide 3...
+✅ Validating slide 3...
+✨ Slide 3 completed successfully
+📝 Generating slide 4...
+🔧 Formatting slide 4...
+✅ Validating slide 4...
+✨ Slide 4 completed successfully
+📝 Generating slide 5...
+🔧 Formatting slide 5...
+✅ Validating slide 5...
+✨ Slide 5 completed successfully
+✨ Successfully generated 5 slides with narrative continuity
+✅ Per-slide pipeline complete
+✅ Multi-agent slides: 4093 characters
 
 📝 Slides written to: ./slides/slides.md
 
@@ -292,7 +368,7 @@ Your presentation opens automatically in the browser! 🎯
 
 ## Generated Output
 
-The tool creates compelling narrative slides that tell your development story:
+The **per-slide pipeline** creates compelling narrative slides with perfect story continuity that tell your development story:
 
 ### Example Generated Slides
 
@@ -372,18 +448,19 @@ layout: center
 
 ## Analysis Modes
 
-### 🧠 Intelligent AI Mode (Default)
+### 🎬 Per-Slide Pipeline Mode (Default)
+- **Revolutionary Architecture**: Each slide generated individually with narrative continuity
 - **Smart Code Analysis**: Analyzes actual file changes and code patterns, not just commit messages
-- **Pattern Recognition**: Detects refactoring, architectural changes, and business impact automatically
-- **Engaging Narratives**: Creates compelling stories that show development progression
-- **Multiple Styles**: Executive, technical, retrospective with audience-specific language
-- **Superior Quality**: Produces professional presentations with deeper insights
+- **Zero-Error Generation**: 3-retry validation system prevents YAML parsing failures
+- **Perfect Story Flow**: Each slide knows previous context and maintains narrative continuity
+- **Intelligent Validation**: Built-in YAML safety and Slidev compatibility checking
+- **Superior Quality**: Professional presentations with engaging story progression
 
 ### 🏛️ Legacy AI Mode (`--legacy-agent`)
-- **Keyword-Based Analysis**: Traditional approach using commit message keywords
-- **Fallback Option**: Available if intelligent analysis has issues
-- **Proven Stability**: Uses the original single-agent prompt system
-- **Same Output Quality**: Professional slides but with simpler analysis
+- **Traditional Single-Agent**: Original monolithic slide generation approach
+- **Keyword-Based Analysis**: Uses commit message keywords and file-based categorization
+- **Fallback Option**: Available if per-slide pipeline has issues
+- **Proven Stability**: Uses the original prompt system with structured output
 
 ### ⚡ Raw Mode (`--skip-ai`)
 - **No AI Processing**: Fast generation without API calls
@@ -391,7 +468,7 @@ layout: center
 - **Quick Reviews**: Good for rapid internal updates
 - **No API Key Required**: Works without OpenAI integration
 
-**Recommendation**: Use the default intelligent mode for best results. The legacy mode provides a reliable fallback, and raw mode offers speed when AI analysis isn't needed.
+**Recommendation**: Use the default per-slide pipeline for best results. It provides narrative continuity, zero parsing errors, and superior presentation quality. The legacy mode provides a reliable fallback, and raw mode offers speed when AI analysis isn't needed.
 
 ## Command Reference
 

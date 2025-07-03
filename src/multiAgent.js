@@ -2,102 +2,14 @@ import { Agent, run } from '@openai/agents';
 import { z } from 'zod';
 import chalk from 'chalk';
 import { gitAnalysisTools } from './gitAnalysisTools.js';
+import { getPromptByStyle } from '../prompts/index.js';
+import { slideGenerationPrompt } from '../prompts/slideGeneration.js';
 
 // =================================
 // STRUCTURED OUTPUT SCHEMAS
 // =================================
 
-// Agent 1: Commit Analysis Schema
-const CommitAnalysisSchema = z.object({
-  commits: z.array(z.object({
-    hash: z.string(),
-    message: z.string(),
-    author: z.string(),
-    date: z.string(),
-    actualChanges: z.object({
-      filesModified: z.array(z.string()),
-      linesAdded: z.number(),
-      linesDeleted: z.number(),
-      architecturalImpact: z.enum(['none', 'minor', 'major', 'breaking']),
-      changeType: z.enum(['feature', 'bugfix', 'refactor', 'performance', 'security', 'documentation', 'testing', 'other']),
-      technicalComplexity: z.enum(['low', 'medium', 'high']),
-      businessImpact: z.string(),
-      riskLevel: z.enum(['low', 'medium', 'high']),
-      dependencies: z.array(z.string()),
-      affectedModules: z.array(z.string())
-    })
-  })),
-  metadata: z.object({
-    totalCommits: z.number(),
-    timespan: z.number(),
-    uniqueAuthors: z.array(z.string()),
-    codeVelocity: z.number(),
-    overallComplexity: z.enum(['low', 'medium', 'high']),
-    majorThemes: z.array(z.string())
-  })
-});
-
-// Agent 2: Categorization Schema
-const CategorizationSchema = z.object({
-  categories: z.record(z.array(z.string())), // commit hashes grouped by category
-  narratives: z.array(z.object({
-    theme: z.string(),
-    commitHashes: z.array(z.string()),
-    importance: z.enum(['low', 'medium', 'high', 'critical']),
-    storyArc: z.string(),
-    technicalJourney: z.string(),
-    businessValue: z.string()
-  })),
-  overallAssessment: z.object({
-    sprintSummary: z.string(),
-    majorAchievements: z.array(z.string()),
-    technicalProgress: z.string(),
-    challengesOvercome: z.array(z.string()),
-    riskFactors: z.array(z.string()),
-    collaborationPatterns: z.string(),
-    nextSteps: z.array(z.string())
-  }),
-  insights: z.object({
-    developmentVelocity: z.string(),
-    codeQuality: z.string(),
-    teamDynamics: z.string(),
-    architecturalEvolution: z.string()
-  })
-});
-
-// Agent 3: Content Planning Schema
-const ContentPlanSchema = z.object({
-  presentationStrategy: z.object({
-    audienceLevel: z.enum(['executive', 'technical', 'mixed']),
-    narrativeStyle: z.enum(['story-driven', 'data-driven', 'problem-solution', 'chronological']),
-    keyMessage: z.string(),
-    callToAction: z.string()
-  }),
-  slideOutline: z.array(z.object({
-    slideNumber: z.number(),
-    title: z.string(),
-    purpose: z.string(),
-    keyPoints: z.array(z.string()),
-    supportingData: z.array(z.string()),
-    visualSuggestions: z.array(z.string()),
-    transitionTo: z.string().nullable()
-  })),
-  contentFlow: z.object({
-    openingHook: z.string(),
-    mainNarratives: z.array(z.string()),
-    climax: z.string(),
-    resolution: z.string(),
-    futureOutlook: z.string()
-  }),
-  designGuidance: z.object({
-    theme: z.string(),
-    primaryLayouts: z.array(z.enum(['default', 'center', 'two-cols', 'cover'])),
-    visualElements: z.array(z.string()),
-    colorEmphasis: z.array(z.string())
-  })
-});
-
-// Agent 4: Final Slide Generation Schema
+// Final Slide Generation Schema
 const SlideDeckSchema = z.object({
   title: z.string(),
   theme: z.string(),
@@ -112,177 +24,351 @@ const SlideDeckSchema = z.object({
 });
 
 // =================================
-// SPECIALIZED AGENTS
+// PER-SLIDE PIPELINE APPROACH
 // =================================
 
-// =================================
-// SIMPLIFIED SINGLE AGENT APPROACH
-// =================================
+// Simplified validation through agent instructions instead of custom tools
 
-const smartSlideGenerationAgent = new Agent({
-  name: 'Smart Slide Generator',
-  instructions: `You are an intelligent slide generation agent that combines commit analysis with slide creation.
+// Agent for generating individual slide content with narrative context
+const slideContentAgent = new Agent({
+  name: 'Slide Content Generator',
+  instructions: `You are a slide content generator that creates individual slides as part of a larger narrative.
 
-TASK: Analyze the provided git commits and generate a complete Slidev presentation.
+TASK: Generate content for ONE slide that fits into the overall presentation story.
 
-ANALYSIS PROCESS:
-1. Examine each commit's actual changes (not just messages)
-2. Identify patterns: new features, bug fixes, refactoring, performance improvements
-3. Determine business impact and technical significance
-4. Create a compelling narrative that shows development progression
+NARRATIVE CONTEXT:
+You will receive:
+- Overall presentation theme and narrative arc
+- Information about previous slides (to maintain continuity)
+- Your slide's role in the story (introduction, development, climax, conclusion)
+- Specific commits and technical content for this slide
 
-SLIDE GENERATION RULES:
-- Create 5-8 slides that tell the development story (more commits = more slides)
-- Include title slide, development journey, key achievements, and conclusion
-- Use appropriate Slidev layouts and formatting
-- Make it engaging for the target audience
+CONTENT GENERATION RULES:
+- Create engaging, narrative-driven content for this ONE slide
+- Maintain story continuity with previous slides
+- Use appropriate Slidev layouts (default, center, two-cols, cover)
+- Include relevant emojis for visual appeal
+- Add speaker notes for context
 
-APPROVED SLIDEV FEATURES - USE THESE LIBERALLY:
+FORMATTING SAFETY:
+- Use "- " for bullet points, NEVER "* "
+- Use "**Bold Text**" for emphasis, NEVER standalone asterisks
+- Use "1. " for numbered lists
+- Avoid patterns like "* key:", "* themes:", "*anything"
+- Keep content clean and simple
 
-ICONS (enhance visual appeal):
-- <mdi:git-branch /> <mdi:git-commit /> <mdi:git-merge />
-- <carbon:development /> <carbon:code /> <carbon:chart-line />
-- <heroicons:code-bracket /> <heroicons:bug-ant /> <heroicons:shield-check />
-- <lucide:zap /> <lucide:users /> <lucide:database />
-- 🚀 🔧 📚 💡 🏗️ 🔒 📊 ⚡ 🎯
-
-LINKS (make it interactive):
-- [Pull Request #123](https://github.com/org/repo/pull/123)
-- [Issue #456](https://github.com/org/repo/issues/456)
-- [Documentation](https://docs.example.com)
-- [Live Demo](https://app.example.com)
-
-LAYOUTS (use variety):
-- layout: default (standard slide)
-- layout: center (centered content)
-- layout: two-cols (side-by-side content)
-- layout: cover (title slide style)
-
-EMPHASIS & FORMATTING:
-- **Bold text** for key points
-- *Italic text* for emphasis
-- \`code snippets\` for technical terms
-- > Blockquotes for important callouts
-- - Bullet points for lists
-- 1. Numbered lists for sequences
-
-VISUAL ELEMENTS:
-- <div class="text-center"> for centered content
-- <small> for secondary information
-- <br/> for line breaks
-- Images: ![alt text](https://example.com/image.png)
-
-ANIMATIONS (subtle):
-- <div v-click> for click animations
-- <span v-after> for sequential reveals
-
-CRITICAL RESTRICTIONS:
-- NEVER use YAML anchors/aliases: NO *AnchorName or &AnchorName
-- NEVER use YAML merge operators: NO <<:
-- Always ensure content is meaningful (no empty slides)
-- Keep YAML frontmatter simple and clean
-
-Return a complete slide deck in JSON format with title, theme, and slides array.`,
-  outputType: SlideDeckSchema
+Return a single slide object with title, content, layout, and notes.`,
+  outputType: z.object({
+    title: z.string(),
+    subtitle: z.string().nullable(),
+    layout: z.enum(['default', 'center', 'two-cols', 'cover']).default('default'),
+    content: z.string(),
+    right_content: z.string().nullable(),
+    notes: z.string().nullable()
+  })
 });
+
+// Agent for formatting individual slides with built-in validation
+const slideFormatterAgent = new Agent({
+  name: 'Slide Formatter',
+  instructions: `You are a slide formatting specialist that ensures perfect Slidev compatibility.
+
+TASK: Take slide content and ensure it's perfect for Slidev rendering.
+
+CRITICAL VALIDATION CHECKS:
+1. YAML SAFETY (MOST IMPORTANT):
+   - Scan for asterisk patterns like "* key:", "*'s", "* word " 
+   - These create YAML aliases that break parsing
+   - Convert to "**Key:**", "**What's**", "**word**" instead
+   - NEVER use standalone asterisks outside of markdown formatting
+
+2. HTML STRUCTURE:
+   - No lists nested inside paragraphs or bold tags
+   - Separate paragraphs and lists with blank lines
+   - Proper markdown hierarchy
+
+3. SAFE FORMATTING:
+   - Use only emoji icons (🚀 💡 🔧 📊 etc.) - no icon components
+   - Use "- " for bullet points, NEVER "* "
+   - Use "**Bold Text**" for emphasis
+   - Valid Slidev layouts: default, center, two-cols, cover
+
+PROCESS:
+1. Examine the input slide content carefully
+2. Identify and fix any YAML-breaking patterns
+3. Ensure proper HTML/markdown structure
+4. Return perfectly formatted content
+
+Return a cleaned slide object that will render flawlessly in Slidev.`,
+  outputType: z.object({
+    title: z.string(),
+    subtitle: z.string().nullable(),
+    layout: z.enum(['default', 'center', 'two-cols', 'cover']).default('default'),
+    content: z.string(),
+    right_content: z.string().nullable(),
+    notes: z.string().nullable()
+  })
+});
+
+// Agent for validating final slide quality
+const slideValidatorAgent = new Agent({
+  name: 'Slide Validator',
+  instructions: `You are a slide validation specialist that performs final quality checks.
+
+TASK: Examine a formatted slide and verify it meets all requirements.
+
+VALIDATION CRITERIA:
+- No YAML anchors or aliases (asterisk patterns)
+- Proper HTML structure (no nested lists in paragraphs)
+- Valid Slidev syntax and layouts
+- Meaningful content (not empty or broken)
+- Safe formatting that won't break rendering
+
+Return validation results with specific feedback for any issues found.`,
+  outputType: z.object({
+    isValid: z.boolean(),
+    issues: z.array(z.string()),
+    recommendations: z.array(z.string()).nullable()
+  })
+});
+
+// =================================
+// PER-SLIDE PIPELINE FUNCTIONS
+// =================================
+
+// Generate individual slide with retry logic and narrative continuity
+const generateSlideWithPipeline = async (slideData, narrativeContext) => {
+  const maxRetries = 3;
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      // Step 1: Generate slide content with narrative context
+      console.log(chalk.cyan(`📝 Generating slide ${narrativeContext.slideIndex + 1}...`));
+
+      // Use custom prompt system for slide generation
+      const promptFunction = slideData.promptOptions?.customPromptFunction ||
+        getPromptByStyle(slideData.promptOptions?.style) ||
+        slideGenerationPrompt;
+
+      // Create detailed commit summary for this slide's commits
+      const detailedCommitSummary = slideData.commits.map(c => {
+        const fileList = c.fileChanges?.map(fc => `${fc.status}: ${fc.file} (${fc.type})`).join(', ') || '';
+        return `
+COMMIT: ${c.message}
+Author: ${c.author}
+Date: ${new Date(c.date).toLocaleDateString()}
+Type: ${c.changeType}
+Files affected: ${c.stats?.files || 0} files, +${c.stats?.insertions || 0} lines, -${c.stats?.deletions || 0} lines
+Changes: ${fileList || 'No file details available'}
+${c.body ? `Description: ${c.body}` : ''}
+`;
+      }).join('\n---\n');
+
+      // Generate the full prompt using the selected prompt function
+      const fullStylePrompt = promptFunction(
+        slideData.theme,
+        detailedCommitSummary,
+        slideData.workByCategory,
+        slideData.commits,
+        slideData.promptOptions
+      );
+
+      // Enhance with narrative context for per-slide generation
+      const contentPrompt = `${fullStylePrompt}
+
+IMPORTANT: You are generating slide ${narrativeContext.slideIndex + 1} of ${narrativeContext.totalSlides} for a presentation with narrative continuity.
+
+NARRATIVE CONTEXT:
+- Overall Theme: ${narrativeContext.overallTheme}
+- Slide Type: ${narrativeContext.slideType} (${narrativeContext.isFirst ? 'Opening slide' : narrativeContext.isLast ? 'Closing slide' : 'Content slide'})
+- Slide Focus: ${narrativeContext.slideFocus}
+
+STORY CONTINUITY:
+${narrativeContext.previousSlides.length > 0 ?
+          `Previous slides covered:\n${narrativeContext.previousSlides.map((s, i) => `Slide ${i + 1}: ${s.title} - ${s.content.substring(0, 100)}...`).join('\n')}` :
+          'This is the first slide - set the stage for the development story.'}
+
+SPECIFIC FOCUS FOR THIS SLIDE:
+Generate content for this ONE slide that:
+1. Maintains story continuity with previous slides
+2. Focuses on the commits assigned to this slide: ${slideData.commits.length} commits
+3. Follows the presentation style: ${slideData.promptOptions?.style || 'default'}
+4. Advances the overall narrative toward: ${narrativeContext.isLast ? 'conclusion and next steps' : 'the next phase of development'}`;
+
+      const contentResult = await run(slideContentAgent, contentPrompt);
+
+      // Step 2: Format with validation tools (up to 3 retries)
+      console.log(chalk.cyan(`🔧 Formatting slide ${narrativeContext.slideIndex + 1}...`));
+
+      const formatPrompt = `Format this slide content for perfect Slidev compatibility:
+
+${JSON.stringify(contentResult.finalOutput, null, 2)}
+
+Carefully examine the content and fix any YAML-breaking patterns, HTML structure issues, or formatting problems. Ensure it will render perfectly in Slidev.`;
+
+      const formattedResult = await run(slideFormatterAgent, formatPrompt);
+
+      // Step 3: Final validation
+      console.log(chalk.cyan(`✅ Validating slide ${narrativeContext.slideIndex + 1}...`));
+
+      const validationPrompt = `Validate this formatted slide for Slidev compatibility:
+
+${JSON.stringify(formattedResult.finalOutput, null, 2)}
+
+Check for YAML anchors, HTML structure issues, and other rendering problems.`;
+
+      const validationResult = await run(slideValidatorAgent, validationPrompt);
+
+      if (validationResult.finalOutput.isValid) {
+        console.log(chalk.green(`✨ Slide ${narrativeContext.slideIndex + 1} completed successfully`));
+        return formattedResult.finalOutput;
+      } else {
+        console.log(chalk.yellow(`⚠️  Slide ${narrativeContext.slideIndex + 1} validation failed (attempt ${attempt + 1}/${maxRetries})`));
+        console.log(chalk.gray(`   Issues: ${validationResult.finalOutput.issues.join(', ')}`));
+        attempt++;
+
+        if (attempt === maxRetries) {
+          console.log(chalk.red(`❌ Slide ${narrativeContext.slideIndex + 1} failed after ${maxRetries} attempts`));
+          throw new Error(`Slide validation failed after ${maxRetries} attempts: ${validationResult.finalOutput.issues.join(', ')}`);
+        }
+      }
+
+    } catch (error) {
+      attempt++;
+      console.error(chalk.red(`❌ Slide ${narrativeContext.slideIndex + 1} error (attempt ${attempt}/${maxRetries}):`, error.message));
+
+      if (attempt === maxRetries) {
+        throw error;
+      }
+    }
+  }
+};
 
 // =================================
 // MAIN EXPORT FUNCTION
 // =================================
 
 export async function generateSlidesWithMultiAgent(commits, options = {}) {
-  console.log(chalk.blue('🔄 Starting multi-agent slide generation...'));
-
-  // Prepare git data for analysis - ensure commit hashes and file data are available
-  const gitData = {
-    commits: commits.map(commit => ({
-      hash: commit.hash,
-      message: commit.message,
-      author: commit.author,
-      date: commit.date,
-      fileChanges: commit.fileChanges || [],
-      stats: {
-        files: commit.stats?.files || 0,
-        insertions: commit.stats?.insertions || 0,
-        deletions: commit.stats?.deletions || 0
-      },
-      body: commit.body || ''
-    })),
-    repository: {
-      name: options.repositoryName || 'Repository',
-      timespan: options.timespan || 7,
-      totalCommits: commits.length
-    },
-    analysisOptions: {
-      style: options.style || 'default',
-      audience: options.audience || 'mixed',
-      focus: options.focus || 'balanced',
-      includeMetrics: options.includeMetrics || false,
-      deepDive: options.deepDive || false,
-      theme: options.theme || 'default'
-    }
-  };
-
-  console.log(chalk.gray(`🔍 Prepared ${gitData.commits.length} commits for multi-agent analysis`));
-  console.log(chalk.gray(`🔍 Commit hashes: ${gitData.commits.map(c => c.hash.substring(0, 7)).join(', ')}`));
-
-  const input = `Generate a compelling Slidev presentation from this git repository data.
-
-REPOSITORY DATA:
-${JSON.stringify(gitData, null, 2)}
-
-PRESENTATION REQUIREMENTS:
-- Style: ${options.style || 'default'}
-- Theme: ${options.theme || 'default'}
-- Audience: ${options.audience || 'mixed'}
-- Focus: ${options.focus || 'balanced'}
-
-ANALYSIS INSTRUCTIONS:
-Look beyond just the commit messages. Analyze the actual file changes, patterns, and development progression. Create a presentation that tells a compelling story of what was really accomplished.
-
-Generate a complete slide deck in JSON format.`;
+  console.log(chalk.blue('🎬 Starting per-slide pipeline with narrative continuity...'));
 
   try {
-    console.log(chalk.gray('🔍 Starting smart slide generation...'));
+    // Plan the overall narrative structure
+    const totalSlides = Math.max(5, Math.min(8, Math.ceil(commits.length / 3)));
+    const overallTheme = `Development Journey: ${commits.length} commits analyzed`;
 
-    const result = await run(smartSlideGenerationAgent, input);
+    console.log(chalk.cyan(`📋 Planning ${totalSlides} slides with narrative continuity...`));
 
-    console.log(chalk.green('✅ Smart slide generation complete'));
-    console.log(chalk.gray(`🔍 Final agent: ${result.lastAgent?.name || 'unknown'}`));
-    console.log(chalk.gray(`🔍 Result type: ${typeof result.finalOutput}`));
+    // Divide commits into slide groups
+    const slideGroups = [];
+    const commitsPerSlide = Math.ceil(commits.length / (totalSlides - 2)); // -2 for title and conclusion
 
-    // The final output should be the SlideDeckSchema from the last agent
-    const slideDeck = result.finalOutput;
+    // Title slide
+    slideGroups.push({
+      type: 'title',
+      commits: [],
+      focus: 'introduction'
+    });
 
-    // Handle different possible output formats
-    if (typeof slideDeck === 'string') {
-      // If it's already Slidev markdown, return it
-      if (slideDeck.includes('---\ntheme:') || slideDeck.includes('---\n theme:')) {
-        console.log(chalk.green('✅ Received Slidev markdown directly'));
-        return slideDeck;
-      }
-      // If it's JSON string, try to parse it
+    // Content slides
+    for (let i = 0; i < totalSlides - 2; i++) {
+      const startIdx = i * commitsPerSlide;
+      const endIdx = Math.min((i + 1) * commitsPerSlide, commits.length);
+      slideGroups.push({
+        type: 'content',
+        commits: commits.slice(startIdx, endIdx),
+        focus: i === 0 ? 'early_development' : i === totalSlides - 3 ? 'recent_changes' : 'development_progress'
+      });
+    }
+
+    // Conclusion slide
+    slideGroups.push({
+      type: 'conclusion',
+      commits: [],
+      focus: 'summary'
+    });
+
+    // Generate slides with narrative context
+    const slides = [];
+    const previousSlides = [];
+
+    for (let i = 0; i < slideGroups.length; i++) {
+      const slideGroup = slideGroups[i];
+
+      const narrativeContext = {
+        slideIndex: i,
+        totalSlides: slideGroups.length,
+        overallTheme,
+        previousSlides: [...previousSlides],
+        slideType: slideGroup.type,
+        slideFocus: slideGroup.focus,
+        isFirst: i === 0,
+        isLast: i === slideGroups.length - 1
+      };
+
+      const slideData = {
+        theme: options.theme || 'default',
+        commits: slideGroup.commits,
+        detailedCommitSummary: `Processing ${slideGroup.commits.length} commits for ${slideGroup.focus}`,
+        workByCategory: {
+          [slideGroup.focus]: slideGroup.commits
+        },
+        promptOptions: options,
+        slideGroup
+      };
+
       try {
-        const parsed = JSON.parse(slideDeck);
-        const slidevMarkdown = convertSlideDeckToSlidev(parsed);
-        return slidevMarkdown;
-      } catch (e) {
-        throw new Error('Final output is string but not valid JSON or Slidev markdown');
+        const slide = await generateSlideWithPipeline(slideData, narrativeContext);
+        slides.push(slide);
+
+        // Add to previous slides for narrative continuity (keep last 2 for context)
+        previousSlides.push({
+          title: slide.title,
+          content: slide.content.substring(0, 200) + '...' // Truncated for context
+        });
+        if (previousSlides.length > 2) {
+          previousSlides.shift();
+        }
+
+      } catch (error) {
+        console.error(chalk.red(`❌ Failed to generate slide ${i + 1}:`), error.message);
+        console.log(chalk.yellow('⚠️  Falling back to simplified slide...'));
+
+        // Create a safe fallback slide
+        slides.push({
+          title: slideGroup.type === 'title' ? 'Development Overview' :
+            slideGroup.type === 'conclusion' ? 'Summary' :
+              `Development Progress ${i}`,
+          subtitle: null,
+          layout: 'default',
+          content: slideGroup.type === 'title' ?
+            `# Development Journey\n\n🚀 **${commits.length} commits** analyzed\n\n📊 Generated with AI analysis` :
+            slideGroup.type === 'conclusion' ?
+              `# Summary\n\n✅ **Development completed**\n\n📈 **Progress made across multiple areas**` :
+              `# Development Update\n\n📝 **Commits processed**: ${slideGroup.commits.length}\n\n🔧 **Work completed** in this phase`,
+          right_content: null,
+          notes: 'Fallback slide due to generation error'
+        });
       }
     }
 
-    if (!slideDeck || typeof slideDeck !== 'object') {
-      throw new Error(`Invalid slide deck generated by agents. Type: ${typeof slideDeck}, Content: ${JSON.stringify(slideDeck)?.substring(0, 200)}`);
-    }
+    const slideDeck = {
+      title: `Development Review: ${commits.length} Commits`,
+      theme: options.theme || 'default',
+      slides: slides
+    };
+
+    console.log(chalk.green(`✨ Successfully generated ${slides.length} slides with narrative continuity`));
 
     // Convert structured output to Slidev markdown format
     const slidevMarkdown = convertSlideDeckToSlidev(slideDeck);
 
+    console.log(chalk.green('✅ Per-slide pipeline complete'));
+
     return slidevMarkdown;
 
   } catch (error) {
-    console.log(chalk.yellow('⚠️ Multi-agent processing failed:', error.message));
-    console.log(chalk.red('Full error:', error));
+    console.error(chalk.red('❌ Per-slide pipeline failed:'), error.message);
     throw error;
   }
 }
@@ -294,31 +380,46 @@ function convertSlideDeckToSlidev(slideDeck) {
     if (!content) return '';
 
     return content
-      // Only remove YAML anchors/aliases that would break parsing
-      .replace(/\*[a-zA-Z_][a-zA-Z0-9_]*(?=\s|$|[^\w-])/g, '') // Remove YAML aliases like *Commit but not *italic*
-      .replace(/&[a-zA-Z_][a-zA-Z0-9_]*(?=\s|$|[^\w-])/g, '') // Remove YAML anchors like &anchor but preserve HTML entities
+      // Minimal sanitization - let the formatting agent do the heavy lifting
+      .replace(/&lt;/g, '<')  // Fix encoded < 
+      .replace(/&gt;/g, '>')  // Fix encoded >
+      .replace(/&amp;/g, '&') // Fix encoded &
       .replace(/<<:/g, '') // Remove YAML merge keys
       .replace(/[\u0000-\u001f\u007f-\u009f]/g, '') // Remove control characters
+      // Safety net: only target obvious YAML alias patterns that agents miss
+      .replace(/\*[a-zA-Z][a-zA-Z0-9]*\s/g, '**') // *Word followed by space
+      .replace(/\*[a-zA-Z][a-zA-Z0-9]*$/g, '**') // *Word at end of line
       .trim();
   }
 
   // Sanitize title to ensure it's safe for YAML
   const safeTitle = sanitizeContent(slideDeck.title || 'Weekly Development Update');
 
+  // Handle first slide layout in main frontmatter
+  const firstSlideLayout = slideDeck.slides[0]?.layout;
   let markdown = `---
 theme: ${slideDeck.theme || 'default'}
-title: "${safeTitle}"
----
+title: "${safeTitle}"`;
+
+  if (firstSlideLayout && firstSlideLayout !== 'default') {
+    markdown += `\nlayout: ${firstSlideLayout}`;
+  }
+
+  markdown += `\n---
 
 `;
 
   slideDeck.slides.forEach((slide, index) => {
     if (index > 0) {
       markdown += '\n---\n';
-    }
 
-    if (slide.layout && slide.layout !== 'default') {
-      markdown += `layout: ${slide.layout}\n`;
+      // Add layout to frontmatter if not default
+      if (slide.layout && slide.layout !== 'default') {
+        markdown += `layout: ${slide.layout}\n---\n`;
+      } else {
+        // Close the frontmatter even for default layout
+        markdown += '---\n';
+      }
     }
 
     const safeSlideTitle = sanitizeContent(slide.title) || `Slide ${index + 1}`;
@@ -359,7 +460,9 @@ title: "${safeTitle}"
   return markdown;
 }
 
-// Re-export agent for potential individual use
+// Re-export agents for potential individual use
 export {
-  smartSlideGenerationAgent
+  slideContentAgent,
+  slideFormatterAgent,
+  slideValidatorAgent
 }; 
